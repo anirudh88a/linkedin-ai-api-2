@@ -5,7 +5,23 @@ import requests
 import json
 
 app = Flask(__name__)
-CORS(app)  # This allows your Bubble.io app to call this API
+# Add more permissive CORS settings
+CORS(app, resources={r"/*": {"origins": "*", 
+                          "allow_headers": ["Content-Type", "Authorization"],
+                          "methods": ["GET", "POST", "OPTIONS"]}})
+
+# Add a logging endpoint to see what's coming in
+@app.route('/log-request', methods=['POST', 'GET', 'OPTIONS'])
+def log_request():
+    print("Headers:", dict(request.headers))
+    print("Body:", request.get_data(as_text=True))
+    return jsonify({
+        "success": True,
+        "message": "Request logged",
+        "headers": dict(request.headers),
+        "body": request.get_data(as_text=True),
+        "method": request.method
+    })
 
 # Get API key from Replit secrets
 claude_api_key = os.environ.get("CLAUDE_API_KEY")
